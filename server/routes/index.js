@@ -1,45 +1,33 @@
 const express = require("express");
 const router = express.Router();
+const {
+  read: findTodos,
+  create: createTodo,
+  update: updateTodo,
+  delete: deleteTodo,
+} = require("../controllers/todos");
+const {
+  read: findUsers,
+  create: createUser,
+  readOne: findUser,
+} = require("../controllers/user");
+const { register, login } = require("../controllers/auth");
 
-let todos = [
-  {
-    id: 1,
-    title: "Cuci tangan",
-    isDone: false,
-  },
-  {
-    id: 2,
-    title: "Jaga jarak",
-    isDone: true,
-  },
-  {
-    id: 3,
-    title: "Pakai masker",
-    isDone: false,
-  },
-];
+const { auth } = require("../middleware/auth");
 
-router.get("/todos", (req, res) => {
-  res.send({ data: todos });
-});
+// Todo Routes
+router.get("/todos", findTodos);
+router.post("/todo", createTodo);
+router.patch("/todo/:id", updateTodo);
+router.delete("/todo/:id", deleteTodo);
 
-router.post("/todo", (req, res) => {
-  todos = [...todos, req.body];
-  res.send({ data: todos });
-});
+// User Routes
+router.get("/users", findUsers);
+router.get("/user", auth, findUser); //PRIVATE
+router.post("/users", createUser);
 
-router.patch("/todo/:id", (req, res) => {
-  const { id } = req.params;
-
-  todos[id - 1] = { ...todos[id - 1], ...req.body };
-  res.send({ data: todos[id - 1] });
-});
-
-router.delete("/todo/:id", (req, res) => {
-  const { id } = req.params;
-
-  todos.splice(id - 1, 1);
-  res.send({ data: todos });
-});
+// Authentication Routes
+router.post("/register", register);
+router.post("/login", login);
 
 module.exports = router;
